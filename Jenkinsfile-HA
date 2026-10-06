@@ -67,28 +67,24 @@ pipeline {
           }
         }
           stage('SonarQube Analysis') {
-            steps {
-              checkout scm
-              container('open-jdk17'){
-                withCredentials([string(credentialsId: 'thunder-sonar', variable: 'SONAR_SECRET')]) {
-                  sh "./mvnw sonar:sonar \
-                  -Dsonar.sourceEncoding=UTF-8 \
-                  -Dsonar.language=java \
-                  -Dsonar.projectKey=petclinic-1 \
-                  -Dsonar.host.url=https://sonarqube.cb-demos.io \
-                  -Dsonar.login=${SONAR_SECRET} \
-                  -Dsonar.projectName=petclinic-1 \
-                  -Dsonar.tests=src/test \
-                  -Dsonar.sources=src/main \
-                  -Dsonar.junit.reportsPath=target/surefire-reports \
-                  -Dsonar.surefire.reportsPath=target/surefire-reports \
-                  -Dsonar.jacoco.reportPath=target/jacoco.exec \
-                  -Dsonar.java.binaries=target/classes \
-                  -Dsonar.java.coveragePlugin=jacoco"
-                }
-              }
-            }
-          }
+  steps {
+    checkout scm
+    container('open-jdk17') {
+      withCredentials([string(credentialsId: 'thunder-sonar', variable: 'SONAR_SECRET')]) {
+        sh '''./mvnw org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+          -Dsonar.sourceEncoding=UTF-8 \
+          -Dsonar.projectKey=petclinic-1 \
+          -Dsonar.host.url=https://sonarqube.cb-demos.io \
+          -Dsonar.token=$SONAR_SECRET \
+          -Dsonar.projectName=petclinic-1 \
+          -Dsonar.tests=src/test \
+          -Dsonar.sources=src/main \
+          -Dsonar.junit.reportsPath=target/surefire-reports \
+          -Dsonar.java.binaries=target/classes'''
+      }
+    }
+  }
+}
       }
     }
     
